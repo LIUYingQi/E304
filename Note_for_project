@@ -1,0 +1,312 @@
+# this project is for simulate and predict some parameter for jet engine
+
+# feature thinking
+# 
+
+1}  3 object to go
+
+    1) fault classification for CMAPSS system
+        there are 5 types of fault
+            Fan
+            HPC
+            LPC
+            HPT
+            LPT
+            NON-fault
+
+    2) RUL prediction remain useful life (units : times of flight)
+
+    3) health idicator prediction
+       health indicator varies from 1 to 0
+
+# test set :
+train_set = [0,2,4,6,8,10,11,12,13,15,16,17,18,20,21,22,23,25,26,27,28,30,31,32,33]
+
+2}  steps:
+
+    0), prepare  life cycle data  //  prepare   fuel flow an engine efficiency data
+    for each flight , we have health indicator and RUL and fault classification,
+    so 300 is the max times of RUL I'd like to use as mask to make all data have the same length
+    totaly we have 6875 flight for 10 types classification. I want to chose 1000 randomly as test set
+
+    1), normalization data
+    this step is to minimiza flight data, for now, each flight contains about 7000 points data, which is obviously
+    too large. maybe 100 - 200 is OK for each flight. and then, make the dataset at same length.
+
+    PS : original data for each flight has title, nomalized data doesn't have title ( to simplify read date process)
+    PS : same for the normed engine fuel flow and efficiency, we don't have label in engine_fuel_normed file
+    PS : but for each label we do have title
+
+    2), prepare dataset
+    for data here, we prepare sequence data batch.
+    *** important part:
+
+        - each batch :
+
+        in this part , for each case , I will look at 10 last flight to predict 3 indicator (health,RUL,fault_type)
+        so for RNN each batch we have 10 flight * 100 (nearly) points for info per flight as sequence length
+        and for RNN each sequence we have 32 points as censor info
+        so for each batch, we have 10 * 100 = 10000 about sequence length and each sequence 32 point
+
+      [  [[*,*,* ...... 32 ...*,*]
+          [*,*,* ...... 32 ...*,*]
+          ......
+          1000
+          ......
+          *,*,* ...........32  ..]]
+
+          ........
+          5000 such sample as train set
+          .............
+
+        [[*,*,* ...... 32 ...*,*]
+         [*,*,* ...... 32 ...*,*]
+          ......
+          1000
+          ......
+          *,*,* ...........32  ..]]  ]   
+
+          so it's [5000,1000,32]
+  
+
+        - for num of batch :
+
+        we have 35 set of data, we have about 250 flight (from 10 to 299 as set), so we get about 8000 batch
+
+    3), train and test result process
+
+        # It's different for all 3 types prediction label
+
+        for fault type, it's a simple classification
+
+        for RUL prediction it's a regression. empiracally, we can use direct RUL as label
+
+        for HI , it's also a regression . but I'd like to predict HI*1000
+
+        steps for train :
+
+            data
+             |
+            LSTM -  NN -> result -> test ( graphe test for each 10 steps and testset statistical test for each step )
+
+            so as result saved for train , we have:
+                1 , model (not yet donr)
+                2 , testset result
+                3 , 35 graphe for 35 case to see predict precision
+
+
+        * 1 - first model LSTM based 1 layer W * output_LSTM + b prediction
+
+        basicly we want to use RNN(LSTM)
+        
+        so:
+
+          ^      ^                 ^      ^   output : 32 items list
+          |      |                 |      |
+         [ ] -> [ ] -> .. 1000 -> [ ] -> [ ] <------ LSTM cell  
+          ^      ^                 ^      ^   
+          |      |                 |      |
+
+          32     32                32     32
+
+        randomly choose 5000 as training set
+        randomly choose 1000 as test set
+        batch size 100 sample 
+
+        Input : 10 flight information
+
+        for RUL and health indicator W * X + B 
+        for fault type argmax(W * X + B)
+
+        result for this model : 93% accuracy for classification
+        for now : not work in RUL prediction
+
+        Test result : I've not done transformation leraning, so obviously there is overfitting.
+        classification : doable without transformated validation
+        HI : non-doable
+        RUL : non-doable
+
+
+        * 2 - second model LSTM based 1 layer W * output_LSTM + b prediction
+
+        basicly we want to use RNN(LSTM)
+
+        so:
+
+          ^      ^                 ^      ^   output : 32 items list
+          |      |                 |      |
+         [ ] -> [ ] -> .. 1000 -> [ ] -> [ ] <------ LSTM cell
+          ^      ^                 ^      ^
+          |      |                 |      |
+
+          32     32                32     32
+
+        randomly choose 5000 as training set
+        randomly choose 1000 as test set
+        batch size 100 sample
+
+        and then we use a three layer neuro network 32|| -> 15||  ->  5->  RUL and HI
+
+        Input : 10 flight information
+
+        Test result : I've not done transformation leraning, so obviously there is overfitting.
+        classification : doable without transfomated validation
+        HI : non-doable
+        RUL : non-doable
+
+
+        * 3 - third model LSTM based 3 layer W * output_LSTM + b prediction
+
+        basicly we want to use RNN(LSTM)  (all sequence )
+
+        so:
+
+          ^      ^                 ^      ^   output : 32 items list * 1000
+          |      |                 |      |
+         [ ] -> [ ] -> .. 1000 -> [ ] -> [ ] <------ LSTM cell
+          ^      ^                 ^      ^
+          |      |                 |      |
+
+          32     32                32     32
+
+        randomly choose 5000 as training set
+        randomly choose 1000 as test set
+        batch size 100 sample
+
+        and then we use a three layer neuro network 32|| -> 15||  ->  5->  RUL and HI
+
+        Input : 10 flight information
+
+        Test result : I've not done transformation leraning, so obviously there is overfitting.
+        classification : unknow (not yet test)
+        HI : doable
+        RUL : doable but not very good
+
+        * 4 - fourthly model LSTM based 3 layer W * output_LSTM + b prediction
+
+        basicly we want to use RNN(LSTM)  (all sequence )
+
+        this time just a flight so 1000 as time sequence
+        ( I've regenerated trainset and dataset . this time with transfomated validation and )
+
+        so:
+
+          ^      ^                 ^      ^   output : 32 items list * 1000
+          |      |                 |      |
+         [ ] -> [ ] -> .. 100 -> [ ] -> [ ] <------ LSTM cell
+          ^      ^                 ^      ^
+          |      |                 |      |
+
+          32     32                32     32
+
+        randomly choose 5000 as training set
+        randomly choose 1000 as test set
+        batch size 100 sample
+
+        and then we use a three layer neuro network 32|| -> 15||  ->  5->  RUL and HI
+
+
+        Input : just 1 flight information
+
+        Test result :
+        classification : non-doable
+        HI : doable
+        RUL : doable but not very good
+        **************  important result*********** ( it justify that 1 flight is OK to predict HI with transformation learning )
+
+        * 5 - 5th model version, try to use clustring methode to do fault classification
+        not work --- forget it -_-
+
+        * 6 - model LSTM based 3 layer W * output_LSTM + b prediction
+
+        basicly we want to use RNN(LSTM)  (not all sequence for NN but the last 10 output as NN input)
+
+        this time just a flight so 1000 as time sequence
+        ( I've regenerated trainset and dataset . this time with transfomated validation and )
+
+        so:
+
+          ^      ^                 ^      ^   output : 61 items list * 10
+          |      |                 |      |
+         [ ] -> [ ] -> .. 100 -> [ ] -> [ ] <------ LSTM cell
+          ^      ^                 ^      ^
+          |      |                 |      |
+
+          61     61                61     61
+
+        randomly choose 5000 as training set
+        randomly choose 1000 as test set
+        batch size 100 sample
+
+        and then we use a three layer neuro network 610|| -> 500||  ->250  ->  RUL and HI
+
+
+        Input : just 1 flight information
+
+        Test result :
+        classification : non-doable
+        HI : doable
+        RUL : doable but not very good
+        **************  important result*********** ( it justify that 1 flight is OK to predict HI and RUL )
+
+
+
+3}  result
+
+     1) log
+        firstly a log to save train result
+
+     2) visualization
+        we want to give a good visualized result. so for the result we need to give some random example RUL and HI
+        index for run to failure case
+
+     3) quantification
+        need to give some result in a example of
+
+
+###########################################################################################################################################################################
+RUL
+###########################################################################################################################################################################
+model         trainset / testset                trainer                   RNN output                    dropout
+
+test_set = [1,3,5,7,9,12,17,22,27,32]
+train_set = [0,2,4,6,8,10,11,13,14,15,16,18,19,20,21,23,24,25,26,28,29,30,31,33,34]   mean realtion : 0.7876
+6                no adjusment                   adam                      -10 ~ -1                      no
+7                no adjusment                   adam                      -10 ~ -1                      yes
+8                no adjusment                   adam                      -16 ~ -6                      no
+9                no adjusment                   RMSprop (lr = 0.05)       -10 ~ -1                      no
+10               no adjusment                   RMSprop (lr = 0.01)       -16 ~ -6                      no
+
+test_set = [1,3,5,9,12,17,22,27,32,34]
+test_set = [0,2,4,8,10,11,13,15,16,18,19,20,21,23,24,25,28,30,31,33]     mean relation : 0.8412
+11               delete non-end                 adam                      -10 ~ -1                      no
+12               delete non-end                 RMSprop (lr = 0.01)       -10 ~ -1                      no
+13               delete non-end                 adam                      -16 ~ -6                      no
+
+test_set = [0,2,5,9,12,17,22,27,32,34]
+train_set = [1,3,4,8,10,11,13,15,16,18,19,20,21,23,24,25,28,30,31,33]    mean realtion : 0.7987
+14               delete non-end /equiv          adam                      -10 ~ -1                      no
+15               delete non-end /equiv          adam                      -10 ~ -1                      yes
+
+test_set = [0,2,5,8,13,17,22,25,28,34]
+train_set = [1,3,4,9,10,11,12,15,16,18,19,20,21,23,24,27,30,31,32,33]    mean realtion : 0.977
+16               total equiv                    adam                      -10 ~ -1                      no
+17               total equiv                    adam                      -10 ~ -1                      yes
+18               total equiv                    adam                      -16 ~ -6                      no
+19               total equiv                    adam                      -16 ~ -6                      yes
+20               total equiv                    adam                      -10 ~ -1                      yes + reg
+21               total equiv                    adam                      -16 ~ -6                      yes + reg
+
+test_set = [0,2,5,8,13,17,22,25,28,34]
+train_set = [1,3,4,9,10,11,12,15,16,18,19,20,21,23,24,27,30,31,32,33]    mean realtion : 0.977    [ps::: remove start and end part]
+22               total equiv                    adam                      -10 ~ -1                      no
+23               total equiv                    adam                      -10 ~ -1                      yes
+
+
+
+
+
+
+
+
+
