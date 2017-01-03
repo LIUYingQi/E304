@@ -23,40 +23,39 @@ titleset = ['alt','MN','TRA','Wf','Fn','SmHPC','SmLPC','SmFan','T48','T2','T24',
             'forward difference htBleed','forward difference PCNfRdmd','forward difference W31','forward difference W32'
             ,'time','fuel flow','fuel efficiency']
 
-
 import cPickle as pickle
 import numpy as np
 from matplotlib import pyplot as plt
 import pandas as pd
 
 model_num = 16
+param = 'RUL'
+file = 2
 time_step_size = 10
 LSTM_size = 61
-n_step_feature = 9
+n_step_feature = 10
+
+with open('../Data_strcture.csv','rb') as Data_structure:
+    info = pd.read_csv(Data_structure)
+    # print info
+    fault_flight = info['Fault_flight'][file-1]
+    fault_type = info['FaultType_info'][file-1]
+    fault_flight = int(fault_flight)
+    print fault_flight
 
 for feature in range(LSTM_size):
-    plt.figure(figsize=(20, 10))
-    plt.title('no fault case : deep feature extracted from last step RNN output of signal '+titleset[feature])
+    plt.figure(figsize=(10, 8))
+    plt.title('deep feature of last 10 steps output of RNN extracted from signal ' + titleset[feature])
     plt.xlabel('flight number')
-    plt.ylabel('feature extracted')
-    plt.axis([0, 300, -1, 1])
-
-    # for i in [1,3,4,9,10]:
-    #     with open('../Graphe_result_saved/Model' + str(model_num) + '/File' + str( i+1) + '/RNN_output_RUL.pkl',
-    #               'rb') as RNN_RUL:
-    #         RNN_RUL = np.array(pickle.load(RNN_RUL))
-    #         RNN_RUL = np.reshape(RNN_RUL, (RNN_RUL.shape[0], time_step_size, LSTM_size))
-    #         plt.plot(np.arange(len(RNN_RUL[:, n_step_feature, feature])) + 1, RNN_RUL[:, n_step_feature, feature],'red')
-
-    for i in [11,12,15,16,18,19,20,21,23,24,27,30,31,32,33]:
-        with open('../Graphe_result_saved/Model' + str(model_num) + '/File' + str(i + 1) + '/RNN_output_RUL.pkl','rb') as RNN_RUL:
-            RNN_RUL = np.array(pickle.load(RNN_RUL))
-            RNN_RUL = np.reshape(RNN_RUL,(RNN_RUL.shape[0],time_step_size,LSTM_size))
-            plt.plot(np.arange(len(RNN_RUL[:, n_step_feature, feature])) + 1,RNN_RUL[:, n_step_feature, feature])
-    label = []
-    for i in [11, 12, 15, 16, 18, 19, 20, 21, 23, 24, 27, 30, 31, 32, 33]:
-        label.append('no fault instance ' + str(i))
-    plt.legend(label)
+    plt.ylabel('output values')
+    fault_line = plt.axvline(fault_flight)
+    plt.legend([fault_line],[fault_type+' happened at '+str(fault_flight)+'th flight'])
+    plt.ylim(-0.5,0.5)
+    # plt.axis([0, 300])
+    with open('../Graphe_result_saved/Model' + str(model_num) + '/File' + str(file) + '/RNN_output_'+param+'.pkl',
+              'rb') as RNN_output:
+        RNN_output = np.array(pickle.load(RNN_output))
+        RNN_output = np.reshape(RNN_output, (RNN_output.shape[0], time_step_size, LSTM_size))
+    for step in range(n_step_feature):
+            plt.plot(np.arange(len(RNN_output[:, step, feature])) + 1,RNN_output[:, step, feature])
     plt.show()
-
-

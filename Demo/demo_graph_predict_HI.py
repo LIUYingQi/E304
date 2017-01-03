@@ -74,10 +74,10 @@ for File_num in test_set:
 
     # plot
     fig1 = plt.figure('fig1')
-    plt.title(str(Step_num)+'   '+str(File_num))
+    plt.title('health indicator regression')
     plt.plot(step,data_rows)
     plt.plot(predict_step,predict_HI)
-
-    plt.xlabel('step ')
-    plt.ylabel('difference prediction and real HI')
+    plt.legend(['real HI','predicted HI'])
+    plt.xlabel('flight number')
+    plt.ylabel('health indicator')
     plt.show()
