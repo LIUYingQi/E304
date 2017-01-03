@@ -24,7 +24,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import pandas as pd
 
-model_num = 16
+model_num = 24
 param = 'RUL'
 fault_file_1 = 1
 time_step_size = 10

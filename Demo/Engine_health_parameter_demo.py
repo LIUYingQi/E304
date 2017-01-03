@@ -13,6 +13,10 @@ with open('../Data_strcture.csv','rb') as csvfile:
             reader = csv.reader(csvfile)
             column = [ row[0] for row in reader]
             pyplot.plot(column[1:])
+            pyplot.title('Health indicator till the end of simulation for case fault fan happened',y=1.04)
+            pyplot.ylabel('HI')
+            pyplot.xlabel('Flight number')
+            pyplot.ylim([0, 1])
             pyplot.show()
 
 

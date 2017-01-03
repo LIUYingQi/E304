@@ -25,7 +25,7 @@ Model_num = 18
 ## PS: file num should test_set + 1
 # aaa
 for File_num in test_set:
-    Step_num = 30
+    Step_num = 45
 
     # load data
     path = '../Graphe_result_saved/Model'+str(Model_num)+'/File'+str(File_num+1)+'/Step'+str(Step_num)+'_prediction_RUL.pkl'
