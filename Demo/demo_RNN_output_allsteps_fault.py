@@ -30,7 +30,7 @@ import pandas as pd
 
 model_num = 16
 param = 'RUL'
-file = 2
+file = 6
 time_step_size = 10
 LSTM_size = 61
 n_step_feature = 10
@@ -45,9 +45,9 @@ with open('../Data_strcture.csv','rb') as Data_structure:
 
 for feature in range(LSTM_size):
     plt.figure(figsize=(10, 8))
-    plt.title('deep feature of last 10 steps output of RNN extracted from signal ' + titleset[feature])
-    plt.xlabel('flight number')
-    plt.ylabel('output values')
+    plt.title('deep feature of last 10 steps output of RNN extracted from signal ' + titleset[feature],fontsize=16)
+    plt.xlabel('flight number',fontsize=16)
+    plt.ylabel('output values',fontsize=16)
     fault_line = plt.axvline(fault_flight)
     plt.legend([fault_line],[fault_type+' happened at '+str(fault_flight)+'th flight'])
     plt.ylim(-0.5,0.5)

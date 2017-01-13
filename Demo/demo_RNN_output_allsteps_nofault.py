@@ -38,9 +38,9 @@ n_step_feature = 10
 for feature in range(LSTM_size):
     plt.figure(figsize=(10, 8))
     plt.subplot(111)
-    plt.title('deep feature of last 10 steps output of RNN extracted from signal ' + titleset[feature])
-    plt.xlabel('flight number')
-    plt.ylabel('output values')
+    plt.title('deep feature of last 10 steps output of RNN extracted from signal ' + titleset[feature],fontsize=16)
+    plt.xlabel('flight number',fontsize=16)
+    plt.ylabel('output values',fontsize=16)
     plt.ylim(-0.5,0.5)
     # plt.axis([0, 300])
     with open('../Graphe_result_saved/Model' + str(model_num) + '/File' + str(file) + '/RNN_output_'+param+'.pkl',

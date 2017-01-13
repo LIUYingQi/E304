@@ -20,7 +20,8 @@ train_set = [1,3,4,9,10,11,12,15,16,18,19,20,21,23,24,27,30,31,32,33]
 Model_num = 6
 
 ## PS: file num should test_set
-for File_num in test_set:
+for File_num in range(35):
+    print File_num
     Step_num = 170
     # load data
 
@@ -29,14 +30,14 @@ for File_num in test_set:
         predict_HI = pickle.load(test_result)
     predict_HI = np.array(predict_HI,dtype=np.float32)
 
-    print ' --------------------- loading prediction HI ------------------- '
-    print ' prediction for HI : '
-    print predict_HI
-    print predict_HI.size
+    # print ' --------------------- loading prediction HI ------------------- '
+    # print ' prediction for HI : '
+    # print predict_HI
+    # print predict_HI.size
 
     # load real RUL
 
-    print ' --------------------- loading real HI ------------------- '
+    # print ' --------------------- loading real HI ------------------- '
     path = '/home/liuyingqi/Desktop/CMAPSS_dataset'
     # load general info from Data_strcture.csv file
     with open('../Data_strcture.csv') as general_info:
@@ -46,7 +47,7 @@ for File_num in test_set:
     flight_num = data_rows[File_num+1][3]
 
     if File_num+1 >10:
-        print ' case : no fault '
+        # print ' case : no fault '
         with open(path+'/'+data_rows[File_num+1][1]+'/Engine0'+data_rows[File_num+1][2]+'/EngineHealth.csv') as general_info:
             reader = csv.reader(general_info)
             data_rows = [row for row in reader]
@@ -54,30 +55,30 @@ for File_num in test_set:
             data_rows = np.array(data_rows)
             data_rows = data_rows.flatten()
 
-            print data_rows.size
+            # print data_rows.size
     else:
-        print ' case : with fault '
+        # print ' case : with fault '
         with open(path+'/'+data_rows[File_num+1][1]+'/Engine0'+data_rows[File_num+1][2]+'/EngineHealth.csv') as general_info:
             reader = csv.reader(general_info)
             data_rows = [row for row in reader]
             data_rows = data_rows[1:]
             data_rows = np.array(data_rows)
             data_rows = data_rows.flatten()
-            print data_rows.size
+            # print data_rows.size
 
     # define : pre-plot
 
     step = np.arange(int(flight_num))+1
     predict_step = np.arange(int(flight_num))+1
-    print step
-    print predict_step
+    # print step
+    # print predict_step
 
     # plot
     fig1 = plt.figure('fig1')
-    plt.title('health indicator regression')
+    # plt.title('health indicator regression')
     plt.plot(step,data_rows)
     plt.plot(predict_step,predict_HI)
-    plt.legend(['real HI','predicted HI'])
-    plt.xlabel('flight number')
-    plt.ylabel('health indicator')
+    plt.legend(['real HI','predicted HI'],fontsize=16)
+    plt.xlabel('flight number',fontsize=16)
+    plt.ylabel('health indicator',fontsize=16)
     plt.show()

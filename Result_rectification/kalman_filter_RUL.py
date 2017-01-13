@@ -20,12 +20,12 @@ import csv
 
 test_set = [0,2,5,8,13,17,22,25,28,34]
 train_set = [1,3,4,9,10,11,12,15,16,18,19,20,21,23,24,27,30,31,32,33]
-Model_num = 18
+Model_num = 20
 
 ## PS: file num should test_set + 1
 # aaa
 for File_num in test_set:
-    Step_num = 45
+    Step_num = 44
 
     # load data
     path = '../Graphe_result_saved/Model'+str(Model_num)+'/File'+str(File_num+1)+'/Step'+str(Step_num)+'_prediction_RUL.pkl'
@@ -93,11 +93,13 @@ for File_num in test_set:
         P[k] = (1 - K[k]) * Pminus[k]  # P(k|k) = (1 - Kg(k)H)P(k|k-1), H=1
 
     pylab.figure()
+    # pylab.title('predicted RUL after kalman filter')
     pylab.plot(z, 'k+', label='RUL prediction')
     pylab.plot(xhat, 'b-', label='RUL estimate')
     pylab.plot(x,'r',label='real RUL')
     pylab.axhline(0,color='g')
-    pylab.legend()
-    pylab.xlabel('life cycle')
-    pylab.ylabel('RUL')
+    pylab.ylim(-50,250)
+    pylab.legend(['RUL prediction before kalman filter','RUL prediction after kalmanfilter','real RUL'],fontsize=16)
+    pylab.xlabel('flight number',fontsize=16)
+    pylab.ylabel('rest useful life',fontsize=16)
     pylab.show()

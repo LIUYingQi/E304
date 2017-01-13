@@ -36,9 +36,9 @@ n_step_feature = 9
 
 for feature in range(LSTM_size):
     plt.figure(figsize=(20, 10))
-    plt.title('no fault case : deep feature extracted from last step RNN output of signal '+titleset[feature])
-    plt.xlabel('flight number')
-    plt.ylabel('feature extracted')
+    plt.title('no fault case : deep feature extracted from last step RNN output of signal '+titleset[feature],fontsize=16)
+    plt.xlabel('flight number',fontsize=16)
+    plt.ylabel('feature extracted',fontsize=16)
     plt.axis([0, 300, -1, 1])
 
     # for i in [1,3,4,9,10]:

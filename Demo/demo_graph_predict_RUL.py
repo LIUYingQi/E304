@@ -21,7 +21,7 @@ Model_num = 20
 
 ## PS: file num should test_set
 for File_num in test_set:
-    Step_num = 100
+    Step_num = 44
 
     # load data
     path = '../Graphe_result_saved/Model'+str(Model_num)+'/File'+str(File_num+1)+'/Step'+str(Step_num)+'_prediction_RUL.pkl'
@@ -62,7 +62,10 @@ for File_num in test_set:
     plt.plot(step,real_RUL)
     plt.plot(step_prediction,predict_RUL)
     plt.plot(step_prediction,predict_RUL - real_RUL[-len(predict_RUL):])
-    plt.xlabel('step ')
-    plt.ylabel('mean difference prediction and real RUL')
-    plt.title('mean for difference between prediction RUL and real RUL')
+    plt.axhline(0,color='black')
+    plt.ylim(-50,300)
+    plt.xlabel('flight number')
+    plt.ylabel('real RUL and predicted RUL')
+    plt.title('rest useful life regression')
+    plt.legend(['real RUL','predicted RUL','error'])
     plt.show()
